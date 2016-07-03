@@ -1,0 +1,89 @@
+##########################
+# Lesley Cordero
+# Quest Project
+# The following script counts the number of graduated quest scholars
+##########################
+
+from xlrd import open_workbook,XL_CELL_TEXT
+import csv
+
+def graduation():
+    book = open_workbook("graduation.xls")
+    sheet = book.sheet_by_index(0)
+    # Opens clearinghouse excel sheet 
+    partners = []
+    finalists = []
+    scholars = []
+    tcount = 0
+    gcount = 0
+    bcount = 0
+    x = 0
+    
+    for col in sheet.col(0):
+        finalists.append(col)
+        # Iterates and appends finalists to the empty list created earlier 
+    with open('IDs.csv', 'rb') as csvfile:
+        spamreader = csv.reader(csvfile, quotechar = ' ',)
+        # Opens CSV file and iterates through
+        for row in spamreader:
+            for it in row:
+                item = "text:u'" + it + "_'"
+                scholars.append(item)
+                # Fixes format of entries to compare to clearinghouse data
+    with open('partners.csv', 'rb') as csvfile:
+        spamreader = csv.reader(csvfile, quotechar = ' ',)
+        # Again, opens CSV file containing partner colleges and appends each
+        # entry to the empty list created earlier. Also again, fixes format.
+        for row in spamreader:
+            for it in row:
+                item = "text:u'" + it + "'"
+                partners.append(item)
+    for item in finalists:
+        # Iterates through clearinghouse IDs appended to the empty list
+        if x + 1 < len(finalists):
+            if str(finalists[x]) == str(finalists[x+1]):
+                tcount = tcount
+                # If the ID remains the same (is equal to eachother), total
+                # count remains the same
+            else:
+                # Otherwise, it's a different person. therefore, we check the ID
+                # to see whether they're a Quest Scholar
+                if str(finalists[x]) in scholars:
+                    tcount = tcount + 1
+                    # If they are a QS, add one to the total count
+                    if str(sheet.cell(x,1)) == "text:u'Y'":
+                        # If the graduated cell is then equal to a yes,
+                        # the student graduated with some sort of degree
+                        cell = str(sheet.cell(x,3))
+                        cell = cell.split()
+                        # To ensure they didnt graduate with just an associate's
+                        # we split the degree column by whitespace and check
+                        # to see if the first item is the string "Associate"
+                        if cell[0] != "text:u'ASSOCIATE":
+                            gcount = gcount + 1
+                            # If not equal to associate, add one to the graduated
+                            # count
+                    if str(sheet.cell(x,1)) == "text:u'N'":
+                        if str(sheet.cell(x,2)) == "empty:''":
+                    # If the graduated cell is equal to a no, we must make sure
+                    # the data is not simply missing. If the column is empty,
+                    # add to the blank count
+                            bcount = bcount + 1
+        if x + 1 == len(finalists):
+            # the following code is the same as previously coded.
+            if str(finalists[x]) in scholars:
+                tcount = tcount + 1
+                if str(sheet.cell(x,1)) == "text:u'Y'":
+                    cell = str(sheet.cell(x,3))
+                    cell = cell.split()
+                    if cell[0] != "text:u'ASSOCIATE":
+                        gcount = gcount + 1
+                if str(sheet.cell(x,1)) == "text:u'N'":
+                    if str(sheet.cell(x,2)) == "empty:''":
+                        bcount = bcount + 1
+        x = x + 1
+        # Add one to the index counter!
+    print tcount
+    print gcount
+    print bcount
+    # Print the total count, graduated number of students, and the blank count!
